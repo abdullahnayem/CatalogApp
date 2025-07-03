@@ -90,8 +90,8 @@ npx react-native start
 ```
 
 ## 🔐 Demo Login Credentials
-- **Username**: `kminchelle`
-- **Password**: `0lelplR`
+- **Username**: 'emilys'
+- **Password**: 'emilyspass'
 
 ## 📋 Features to Test Once Running
 

@@ -7,7 +7,7 @@
 #### Authentication Flow
 - [x] **Login Screen**: Implemented with DummyJSON API integration
   - Username/password validation
-  - Demo credentials provided (kminchelle/0lelplR)
+  - Demo credentials provided ('emilys'/'emilyspass')
   - JWT token storage with AsyncStorage
   - Error handling with user feedback
   - Loading states during authentication

@@ -51,8 +51,8 @@ npx react-native run-android
 
 ### Login Credentials
 Use these demo credentials to test the app:
-- **Username**: `kminchelle`
-- **Password**: `0lelplR`
+- **Username**: `emilys`
+- **Password**: `emilyspass`
 
 ## App Features to Test
 

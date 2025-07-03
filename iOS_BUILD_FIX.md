@@ -72,8 +72,8 @@ npx react-native run-ios
 Your app has all these features ready to test:
 
 ### 🔐 Login Screen
-- Username: `kminchelle`
-- Password: `0lelplR`
+- Username: `emilys`
+- Password: `emilyspass`
 
 ### 🏠 Home Screen
 - Product grid with search

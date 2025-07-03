@@ -93,8 +93,8 @@ npx react-native run-android
 
 Use these credentials to test the login functionality:
 
-- **Username**: `kminchelle`
-- **Password**: `0lelplR`
+- **Username**: `emilys`
+- **Password**: `emilyspass`
 
 ## Project Structure
 

@@ -109,8 +109,8 @@ const LoginScreen: React.FC = () => {
 
         <Text style={styles.demoText}>
           Demo credentials:{'\n'}
-          Username: kminchelle{'\n'}
-          Password: 0lelplR
+          Username: emilys{'\n'}
+          Password: emilyspass
         </Text>
       </View>
     </KeyboardAvoidingView>
