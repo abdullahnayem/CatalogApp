@@ -1,22 +1,237 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# CatalogApp - React Native Ecommerce App
 
-# Getting Started
+A React Native catalog application that displays products from the DummyJSON API with authentication, favorites management, and map functionality.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## Features
 
-## Step 1: Start Metro
+### Phase 1 ✅
+- **Authentication Flow**: Login screen with persistent authentication
+- **Home Screen**: Product listing with search functionality
+- **Favorites Management**: Toggle favorites with instant updates across screens
+- **Bottom Tab Navigation**: Home, Favorites, and Map screens
+- **Map Integration**: Display current location on map
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+### Phase 2 ✅
+- **Product Details Screen**: Detailed product information
+- **Timestamp Display**: Native module integration (every 20 seconds)
+- **Responsive Design**: Portrait and landscape mode support
+- **TypeScript**: Full TypeScript implementation with strict type checking
+- **State Management**: Redux Toolkit with RTK Query for API calls
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+## Technology Stack
 
-```sh
-# Using npm
+- **React Native CLI** (v0.80.1)
+- **TypeScript** - Strict type checking
+- **Redux Toolkit** - State management
+- **RTK Query** - API calls and caching
+- **React Navigation** - Navigation management
+- **React Native Maps** - Map functionality
+- **React Native Vector Icons** - Icon library
+- **AsyncStorage** - Local data persistence
+
+## Prerequisites
+
+Before running this project, ensure you have:
+
+1. **Node.js** (v16 or higher)
+2. **React Native CLI** installed globally
+3. **Xcode** (for iOS development)
+4. **Android Studio** (for Android development)
+5. **CocoaPods** (for iOS dependencies)
+
+Follow the [React Native Environment Setup](https://reactnative.dev/docs/set-up-your-environment) guide.
+
+## Installation
+
+1. **Clone the repository**:
+   ```bash
+   git clone <repository-url>
+   cd CatalogApp
+   ```
+
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+
+3. **iOS Setup**:
+   ```bash
+   cd ios
+   bundle install
+   bundle exec pod install
+   cd ..
+   ```
+
+4. **Android Setup**:
+   - Open Android Studio
+   - Open the `android` folder
+   - Sync project with Gradle files
+
+## Running the Application
+
+### Start Metro Bundler
+
+```bash
 npm start
-
-# OR using Yarn
-yarn start
 ```
+
+### Run on iOS
+
+```bash
+npx react-native run-ios
+```
+
+Or open `ios/CatalogApp.xcworkspace` in Xcode and run.
+
+### Run on Android
+
+```bash
+npx react-native run-android
+```
+
+## Demo Credentials
+
+Use these credentials to test the login functionality:
+
+- **Username**: `kminchelle`
+- **Password**: `0lelplR`
+
+## Project Structure
+
+```
+src/
+├── components/          # Reusable UI components
+│   ├── ProductCard.tsx
+│   └── TimestampDisplay.tsx
+├── screens/            # Screen components
+│   ├── LoginScreen.tsx
+│   ├── HomeScreen.tsx
+│   ├── FavoritesScreen.tsx
+│   ├── MapScreen.tsx
+│   └── ProductDetailsScreen.tsx
+├── navigation/         # Navigation configuration
+│   └── AppNavigator.tsx
+├── store/             # Redux store and slices
+│   ├── index.ts
+│   └── slices/
+│       ├── authSlice.ts
+│       └── favoritesSlice.ts
+├── services/          # API services
+│   └── api.ts
+├── types/            # TypeScript type definitions
+│   └── index.ts
+└── utils/            # Utility functions
+    └── index.ts
+```
+
+## Key Features Implementation
+
+### Authentication
+- Persistent login using AsyncStorage
+- JWT token management
+- Automatic logout on token expiry
+
+### Product Catalog
+- Product listing with search
+- Category filtering
+- Favorites management
+- Product details view
+
+### State Management
+- Redux Toolkit for global state
+- RTK Query for API caching
+- AsyncStorage for persistence
+
+### Navigation
+- Stack navigation for screens
+- Bottom tabs for main sections
+- Deep linking support
+
+## API Integration
+
+The app uses the [DummyJSON API](https://dummyjson.com) for:
+
+- **Authentication**: `/auth/login`
+- **Products**: `/products`, `/products/search`, `/products/{id}`
+- **Categories**: `/products/categories`
+
+## Development Guidelines
+
+### Code Style
+- TypeScript with strict type checking
+- Functional components with hooks
+- Redux Toolkit patterns
+- Consistent naming conventions
+
+### Testing
+Run tests with:
+```bash
+npm test
+```
+
+### Type Checking
+```bash
+npx tsc --noEmit
+```
+
+### Linting
+```bash
+npm run lint
+```
+
+## Troubleshooting
+
+### iOS Issues
+- Clean build folder: Product → Clean Build Folder in Xcode
+- Reset Metro cache: `npx react-native start --reset-cache`
+- Reinstall pods: `cd ios && pod install`
+
+### Android Issues
+- Clean project: `cd android && ./gradlew clean`
+- Reset Metro cache: `npx react-native start --reset-cache`
+
+### Common Issues
+- **Metro bundler issues**: Clear cache and restart
+- **Build failures**: Check React Native environment setup
+- **Map not showing**: Ensure location permissions are granted
+
+## Future Enhancements
+
+- [ ] Push notifications
+- [ ] Offline mode support
+- [ ] Shopping cart functionality
+- [ ] User profile management
+- [ ] Product reviews and ratings
+- [ ] Social sharing
+- [ ] Dark mode support
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
+
+## License
+
+This project is licensed under the MIT License.
+
+## Completed Phases
+
+### Phase 1 ✅
+- Login screen with authentication
+- Home screen with product listing
+- Bottom tab navigation
+- Favorites functionality
+- Map screen with current location
+
+### Phase 2 ✅
+- Product details screen
+- Timestamp display with native module integration
+- Complete TypeScript implementation
+- Redux Toolkit state management
+- RTK Query API integration
 
 ## Step 2: Build and run your app
 

@@ -1,3 +1,4 @@
+import 'react-native-gesture-handler';
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -6,6 +7,10 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 import { RootStackParamList, BottomTabParamList } from '../types';
+
+// Enable screens to prevent StackView errors
+import { enableScreens } from 'react-native-screens';
+enableScreens();
 
 // Import screens (we'll create these next)
 import LoginScreen from '../screens/LoginScreen';
@@ -81,7 +86,7 @@ const AppNavigator = () => {
               options={{ 
                 headerShown: true,
                 title: 'Product Details',
-                headerBackTitleVisible: false,
+                headerBackTitle: '',
               }}
             />
           </>
