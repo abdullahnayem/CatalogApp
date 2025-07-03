@@ -6,10 +6,10 @@ import {
   Alert,
   TouchableOpacity,
   ActivityIndicator,
+  Platform,
 } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
-import Geolocation from 'react-native-geolocation-service';
-import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
+import { request, check, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Location } from '../types';
 
@@ -17,19 +17,49 @@ const MapScreen: React.FC = () => {
   const [location, setLocation] = useState<Location | null>(null);
   const [loading, setLoading] = useState(true);
   const [hasPermission, setHasPermission] = useState(false);
+  const [mapError, setMapError] = useState(false);
 
   useEffect(() => {
-    requestLocationPermission();
+    checkLocationPermission();
   }, []);
 
-  const requestLocationPermission = async () => {
+  const checkLocationPermission = async () => {
     try {
-      const result = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
+      const permission = Platform.OS === 'ios' 
+        ? PERMISSIONS.IOS.LOCATION_WHEN_IN_USE 
+        : PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION;
+      
+      console.log('Checking permission for:', Platform.OS, permission);
+      const result = await check(permission);
+      console.log('Permission check result:', result);
       
       if (result === RESULTS.GRANTED) {
         setHasPermission(true);
         getCurrentLocation();
       } else {
+        requestLocationPermission();
+      }
+    } catch (error) {
+      console.error('Permission check error:', error);
+      requestLocationPermission();
+    }
+  };
+
+  const requestLocationPermission = async () => {
+    try {
+      // Use different permissions for iOS and Android
+      const permission = Platform.OS === 'ios' 
+        ? PERMISSIONS.IOS.LOCATION_WHEN_IN_USE 
+        : PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION;
+      
+      console.log('Requesting permission for:', Platform.OS, permission);
+      const result = await request(permission);
+      console.log('Permission request result:', result);
+      
+      if (result === RESULTS.GRANTED) {
+        setHasPermission(true);
+        getCurrentLocation();
+      } else if (result === RESULTS.DENIED) {
         setHasPermission(false);
         setLoading(false);
         Alert.alert(
@@ -38,6 +68,16 @@ const MapScreen: React.FC = () => {
           [
             { text: 'Cancel', style: 'cancel' },
             { text: 'Retry', onPress: requestLocationPermission },
+          ]
+        );
+      } else if (result === RESULTS.BLOCKED) {
+        setHasPermission(false);
+        setLoading(false);
+        Alert.alert(
+          'Location Permission Blocked',
+          'Location permission has been blocked. Please go to Settings > Apps > CatalogApp > Permissions and enable Location.',
+          [
+            { text: 'OK', style: 'default' },
           ]
         );
       }
@@ -50,7 +90,7 @@ const MapScreen: React.FC = () => {
   const getCurrentLocation = () => {
     setLoading(true);
     
-    Geolocation.getCurrentPosition(
+    navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
         setLocation({ latitude, longitude });
@@ -118,46 +158,79 @@ const MapScreen: React.FC = () => {
     longitudeDelta: 0.0421,
   };
 
-  return (
-    <View style={styles.container}>
-      <MapView
-        provider={PROVIDER_GOOGLE}
-        style={styles.map}
-        region={defaultRegion}
-        showsUserLocation={true}
-        showsMyLocationButton={false}
-        showsCompass={true}
-        showsScale={true}
-      >
+  // If there's a map error, show a fallback UI
+  if (mapError) {
+    return (
+      <View style={styles.permissionContainer}>
+        <Icon name="map" size={64} color="#ccc" />
+        <Text style={styles.permissionTitle}>Map Unavailable</Text>
+        <Text style={styles.permissionSubtitle}>
+          Unable to load the map. Please check your internet connection.
+        </Text>
+        <TouchableOpacity 
+          style={styles.permissionButton}
+          onPress={() => setMapError(false)}
+        >
+          <Text style={styles.permissionButtonText}>Retry</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  try {
+    return (
+      <View style={styles.container}>
+        <MapView
+          provider={Platform.OS === 'android' ? PROVIDER_GOOGLE : undefined}
+          style={styles.map}
+          region={defaultRegion}
+          showsUserLocation={true}
+          showsMyLocationButton={false}
+          showsCompass={true}
+          showsScale={true}
+        >
+          {location && (
+            <Marker
+              coordinate={location}
+              title="Your Location"
+              description="You are here"
+              pinColor="#007AFF"
+            />
+          )}
+        </MapView>
+        
+        <TouchableOpacity 
+          style={styles.refreshButton}
+          onPress={handleRefreshLocation}
+        >
+          <Icon name="my-location" size={24} color="#007AFF" />
+        </TouchableOpacity>
+        
         {location && (
-          <Marker
-            coordinate={location}
-            title="Your Location"
-            description="You are here"
-            pinColor="#007AFF"
-          />
+          <View style={styles.locationInfo}>
+            <Text style={styles.locationText}>
+              Lat: {location.latitude.toFixed(6)}
+            </Text>
+            <Text style={styles.locationText}>
+              Lng: {location.longitude.toFixed(6)}
+            </Text>
+          </View>
         )}
-      </MapView>
-      
-      <TouchableOpacity 
-        style={styles.refreshButton}
-        onPress={handleRefreshLocation}
-      >
-        <Icon name="my-location" size={24} color="#007AFF" />
-      </TouchableOpacity>
-      
-      {location && (
-        <View style={styles.locationInfo}>
-          <Text style={styles.locationText}>
-            Lat: {location.latitude.toFixed(6)}
-          </Text>
-          <Text style={styles.locationText}>
-            Lng: {location.longitude.toFixed(6)}
-          </Text>
-        </View>
-      )}
-    </View>
-  );
+      </View>
+    );
+  } catch (error) {
+    console.error('MapScreen render error:', error);
+    setMapError(true);
+    return (
+      <View style={styles.permissionContainer}>
+        <Icon name="error" size={64} color="#ccc" />
+        <Text style={styles.permissionTitle}>Something went wrong</Text>
+        <Text style={styles.permissionSubtitle}>
+          Please try again or restart the app.
+        </Text>
+      </View>
+    );
+  }
 };
 
 const styles = StyleSheet.create({
