@@ -23,71 +23,105 @@ const MapScreen: React.FC = () => {
     checkLocationPermission();
   }, []);
 
-  const checkLocationPermission = async () => {
-    try {
-      const permission = Platform.OS === 'ios' 
-        ? PERMISSIONS.IOS.LOCATION_WHEN_IN_USE 
-        : PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION;
-      
-      console.log('Checking permission for:', Platform.OS, permission);
-      const result = await check(permission);
-      console.log('Permission check result:', result);
-      
-      if (result === RESULTS.GRANTED) {
+
+
+const checkLocationPermission = async () => {
+  try {
+    const permission = Platform.OS === 'ios' 
+      ? PERMISSIONS.IOS.LOCATION_WHEN_IN_USE 
+      : PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION;
+    
+    const result = await check(permission);
+    
+    switch (result) {
+      case RESULTS.GRANTED:
         setHasPermission(true);
         getCurrentLocation();
-      } else {
+        break;
+      case RESULTS.DENIED:
+      case RESULTS.UNAVAILABLE:
+        // Explicitly handle these cases
+        await requestLocationPermission();
+        break;
+      case RESULTS.BLOCKED:
+        setHasPermission(false);
+        setLoading(false);
+        showBlockedPermissionAlert();
+        break;
+      default:
         requestLocationPermission();
-      }
-    } catch (error) {
-      console.error('Permission check error:', error);
-      requestLocationPermission();
     }
-  };
+  } catch (error) {
+    console.error('Permission check error:', error);
+    setLoading(false);
+    Alert.alert(
+      'Location Service Error',
+      'An unexpected error occurred while checking location permissions.',
+      [{ text: 'OK', onPress: () => requestLocationPermission() }]
+    );
+  }
+};
 
-  const requestLocationPermission = async () => {
-    try {
-      // Use different permissions for iOS and Android
-      const permission = Platform.OS === 'ios' 
-        ? PERMISSIONS.IOS.LOCATION_WHEN_IN_USE 
-        : PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION;
-      
-      console.log('Requesting permission for:', Platform.OS, permission);
-      const result = await request(permission);
-      console.log('Permission request result:', result);
-      
-      if (result === RESULTS.GRANTED) {
+const requestLocationPermission = async () => {
+  try {
+    const permission = Platform.OS === 'ios' 
+      ? PERMISSIONS.IOS.LOCATION_WHEN_IN_USE 
+      : PERMISSIONS.ANDROID.ACCESS_FINE_LOCATION;
+    
+    const result = await request(permission);
+    
+    switch (result) {
+      case RESULTS.GRANTED:
         setHasPermission(true);
         getCurrentLocation();
-      } else if (result === RESULTS.DENIED) {
+        break;
+      case RESULTS.DENIED:
         setHasPermission(false);
         setLoading(false);
-        Alert.alert(
-          'Location Permission',
-          'Location permission is required to show your current location on the map.',
-          [
-            { text: 'Cancel', style: 'cancel' },
-            { text: 'Retry', onPress: requestLocationPermission },
-          ]
-        );
-      } else if (result === RESULTS.BLOCKED) {
+        showDeniedPermissionAlert();
+        break;
+      case RESULTS.BLOCKED:
         setHasPermission(false);
         setLoading(false);
-        Alert.alert(
-          'Location Permission Blocked',
-          'Location permission has been blocked. Please go to Settings > Apps > CatalogApp > Permissions and enable Location.',
-          [
-            { text: 'OK', style: 'default' },
-          ]
-        );
-      }
-    } catch (error) {
-      console.error('Permission error:', error);
-      setLoading(false);
+        showBlockedPermissionAlert();
+        break;
+      default:
+        setLoading(false);
     }
-  };
+  } catch (error) {
+    console.error('Permission request error:', error);
+    setLoading(false);
+    Alert.alert(
+      'Permission Error',
+      'Failed to request location permission. Please try again later.',
+      [{ text: 'OK' }]
+    );
+  }
+};
 
-  const getCurrentLocation = () => {
+// Helper functions for consistent alerts
+const showDeniedPermissionAlert = () => {
+  Alert.alert(
+    'Location Permission',
+    'Location permission is required to show your current location on the map.',
+    [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Try Again', onPress: requestLocationPermission },
+    ]
+  );
+};
+
+const showBlockedPermissionAlert = () => {
+  Alert.alert(
+    'Location Permission Blocked',
+    'Location permission has been blocked. Please enable it in app settings.',
+    [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Open Settings', onPress: () => Linking.openSettings() },
+    ]
+  );
+};
+const getCurrentLocation = () => {
     setLoading(true);
     
     navigator.geolocation.getCurrentPosition(
@@ -115,7 +149,6 @@ const MapScreen: React.FC = () => {
       }
     );
   };
-
   const handleRefreshLocation = () => {
     if (hasPermission) {
       getCurrentLocation();

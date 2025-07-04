@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useGetProductByIdQuery } from '../services/api';
 import { toggleFavorite } from '../store/slices/favoritesSlice';
 import { RootState, AppDispatch } from '../store';
