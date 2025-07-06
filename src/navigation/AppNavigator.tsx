@@ -47,7 +47,7 @@ const BottomTabNavigator = () => {
         headerShown: true,
         tabBarStyle: {
           paddingBottom: 5,
-          paddingTop: 5,
+   
         },
       })}
     >

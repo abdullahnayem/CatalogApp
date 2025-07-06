@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -28,7 +28,9 @@ const HomeScreen: React.FC = () => {
   const [refreshing, setRefreshing] = useState(false);
   const dispatch = useDispatch<AppDispatch>();
   const navigation = useNavigation<HomeScreenNavigationProp>();
-  const favoriteProductIds = useSelector((state: RootState) => state.favorites.favoriteProductIds);
+  const favoriteProductIds = useSelector(
+    (state: RootState) => state.favorites.favoriteProductIds,
+  );
   const user = useSelector((state: RootState) => state.auth.user);
 
   const {
@@ -42,76 +44,97 @@ const HomeScreen: React.FC = () => {
     search: searchQuery.trim() || undefined,
   });
 
-  const handleSearch = (text: string) => {
+  // Use useCallback to prevent unnecessary re-renders
+  const handleSearch = useCallback((text: string) => {
     setSearchQuery(text);
-  };
+  }, []);
 
-  const handleToggleFavorite = (productId: number) => {
-    dispatch(toggleFavorite(productId));
-  };
+  const handleToggleFavorite = useCallback(
+    (productId: number) => {
+      dispatch(toggleFavorite(productId));
+    },
+    [dispatch],
+  );
 
-  const handleProductPress = (productId: number) => {
-    navigation.navigate('ProductDetails', { productId });
-  };
+  const handleProductPress = useCallback(
+    (productId: number) => {
+      navigation.navigate('ProductDetails', { productId });
+    },
+    [navigation],
+  );
 
-  const handleLogout = () => {
-    Alert.alert(
-      'Logout',
-      'Are you sure you want to logout?',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { 
-          text: 'Logout', 
-          style: 'destructive',
-          onPress: () => dispatch(logout())
-        },
-      ]
-    );
-  };
+  const handleLogout = useCallback(() => {
+    Alert.alert('Logout', 'Are you sure you want to logout?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Logout',
+        style: 'destructive',
+        onPress: () => dispatch(logout()),
+      },
+    ]);
+  }, [dispatch]);
 
-  const onRefresh = async () => {
+  const onRefresh = useCallback(async () => {
     setRefreshing(true);
     await refetch();
     setRefreshing(false);
-  };
+  }, [refetch]);
 
-  const renderProduct = ({ item }: { item: Product }) => (
-    <ProductCard
-      product={item}
-      isFavorite={favoriteProductIds.includes(item.id)}
-      onToggleFavorite={handleToggleFavorite}
-      onPress={() => handleProductPress(item.id)}
-    />
+  // Memoize renderProduct to prevent unnecessary re-renders
+  const renderProduct = useCallback(
+    ({ item }: { item: Product }) => (
+      <ProductCard
+        product={item}
+        isFavorite={favoriteProductIds.includes(item.id)}
+        onToggleFavorite={handleToggleFavorite}
+        onPress={() => handleProductPress(item.id)}
+      />
+    ),
+    [favoriteProductIds, handleToggleFavorite, handleProductPress],
   );
 
-  const renderHeader = () => (
-    <View style={styles.header}>
-      <View style={styles.userInfo}>
-        <Text style={styles.welcomeText}>Welcome, {user?.firstName || 'User'}!</Text>
-        <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
-          <Icon name="logout" size={24} color="#007AFF" />
-        </TouchableOpacity>
-      </View>
-      
-      <View style={styles.searchContainer}>
-        <Icon name="search" size={20} color="#666" style={styles.searchIcon} />
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search products..."
-          value={searchQuery}
-          onChangeText={handleSearch}
-          returnKeyType="search"
-        />
-        {searchQuery.length > 0 && (
-          <TouchableOpacity
-            onPress={() => setSearchQuery('')}
-            style={styles.clearButton}
-          >
-            <Icon name="clear" size={20} color="#666" />
+  // Memoize renderHeader to prevent unnecessary re-renders
+  const renderHeader = useCallback(
+    () => (
+      <View style={styles.header}>
+        <View style={styles.userInfo}>
+          <Text style={styles.welcomeText}>
+            Welcome, {user?.firstName || 'User'}!
+          </Text>
+          <TouchableOpacity onPress={handleLogout} style={styles.logoutButton}>
+            <Icon name="logout" size={24} color="#007AFF" />
           </TouchableOpacity>
-        )}
+        </View>
+
+        <View style={styles.searchContainer}>
+          <Icon
+            name="search"
+            size={20}
+            color="#666"
+            style={styles.searchIcon}
+          />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search products..."
+            value={searchQuery}
+            onChangeText={handleSearch}
+            returnKeyType="search"
+            autoCorrect={false}
+            autoCapitalize="none"
+            blurOnSubmit={false}
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity
+              onPress={() => setSearchQuery('')}
+              style={styles.clearButton}
+            >
+              <Icon name="clear" size={20} color="#666" />
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
-    </View>
+    ),
+    [user?.firstName, handleLogout, searchQuery, handleSearch],
   );
 
   if (error) {
@@ -128,11 +151,14 @@ const HomeScreen: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <TimestampDisplay />
+      <View style={styles.timestampContainer}>
+        <TimestampDisplay />
+      </View>
+
       <FlatList
         data={productsData?.products || []}
         renderItem={renderProduct}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={item => item.id.toString()}
         ListHeaderComponent={renderHeader}
         numColumns={2}
         contentContainerStyle={styles.listContainer}
@@ -140,6 +166,8 @@ const HomeScreen: React.FC = () => {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        removeClippedSubviews={false}
       />
     </View>
   );
@@ -149,6 +177,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
+  },
+  timestampContainer: {
+    alignItems: 'center',
+    marginVertical: 10,
   },
   header: {
     backgroundColor: '#fff',

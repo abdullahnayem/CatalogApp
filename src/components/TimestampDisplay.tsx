@@ -8,14 +8,14 @@ const TimestampDisplay: React.FC = () => {
   useEffect(() => {
     const updateTimestamp = () => {
       const now = new Date();
-      const formattedTime = now.toLocaleString('en-US', {
+      const formattedTime = now.toLocaleString('en-GB', {
         year: 'numeric',
         month: '2-digit',
         day: '2-digit',
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit',
-        hour12: false,
+        hour12: true,
       });
       setCurrentTime(formattedTime);
     };
@@ -43,16 +43,17 @@ const TimestampDisplay: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    top: 100,
+    top: -5, // Adjusted to be closer to the top
     right: 15,
-    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    backgroundColor: 'rgba(211, 187, 187, 0.7)',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 8,
     zIndex: 1000,
+
   },
   timestampText: {
-    color: '#fff',
+    color: '#000',
     fontSize: 12,
     fontWeight: '500',
     fontFamily: 'monospace',

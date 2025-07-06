@@ -49,10 +49,22 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <Text style={styles.category}>{product.category}</Text>
         
         <View style={styles.priceContainer}>
+         <View> 
           <Text style={styles.currentPrice}>${discountedPrice.toFixed(2)}</Text>
           {product.discountPercentage > 0 && (
             <Text style={styles.originalPrice}>${product.price.toFixed(2)}</Text>
           )}
+          </View>
+            <View style={{ flex: 1, alignItems: 'flex-end', justifyContent: 'center' }}>
+            {product.discountPercentage > 0 && (
+              <View style={styles.discountBadge}>
+              <Text style={styles.discountText}>
+                -{product.discountPercentage.toFixed(0)}%
+              </Text>
+              </View>
+            )}
+            </View>
+         
         </View>
         
         <View style={styles.ratingContainer}>
@@ -60,13 +72,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
           <Text style={styles.rating}>{product.rating.toFixed(1)}</Text>
         </View>
         
-        {product.discountPercentage > 0 && (
-          <View style={styles.discountBadge}>
-            <Text style={styles.discountText}>
-              -{product.discountPercentage.toFixed(0)}%
-            </Text>
-          </View>
-        )}
+
       </View>
     </TouchableOpacity>
   );
@@ -97,20 +103,17 @@ const styles = StyleSheet.create({
   },
   favoriteButton: {
     position: 'absolute',
-    top: 8,
-    right: 8,
-    backgroundColor: 'rgba(255, 255, 255, 0.9)',
-    borderRadius: 20,
-    padding: 6,
+    top: 2,
+    right: 6,
+    //backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: 25,
+    padding: 7,
   },
   discountBadge: {
-    position: 'absolute',
-    top: 8,
-    left: 8,
     backgroundColor: '#FF3B30',
     borderRadius: 4,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
   },
   discountText: {
     color: '#fff',
@@ -145,6 +148,7 @@ const styles = StyleSheet.create({
     marginRight: 6,
   },
   originalPrice: {
+    left: 5,
     fontSize: 12,
     color: '#999',
     textDecorationLine: 'line-through',
