@@ -9,8 +9,6 @@ import { enableScreens } from 'react-native-screens';
 import { RootState } from '../store';
 import { RootStackParamList, BottomTabParamList } from '../types';
 
-// Enable screens to prevent StackView errors
-import { enableScreens } from 'react-native-screens';
 enableScreens();
 
 // Import screens (we'll create these next)
