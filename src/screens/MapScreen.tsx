@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import MapView, { Marker, PROVIDER_GOOGLE } from 'react-native-maps';
 import { request, check, PERMISSIONS, RESULTS } from 'react-native-permissions';
+import Geolocation from '@react-native-community/geolocation';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Location } from '../types';
 
@@ -90,7 +91,7 @@ const MapScreen: React.FC = () => {
 const getCurrentLocation = () => {
   setLoading(true);
   
-  navigator.geolocation.getCurrentPosition(
+  Geolocation.getCurrentPosition(
     (position) => {
       const { latitude, longitude } = position.coords;
       setLocation({ latitude, longitude });
@@ -107,7 +108,6 @@ const getCurrentLocation = () => {
         case error.PERMISSION_DENIED:
           title = 'Permission Denied';
           message = 'Location permission was denied. Please enable location access in settings.';
-          // Re-check permissions
           setHasPermission(false);
           break;
         case error.POSITION_UNAVAILABLE:
